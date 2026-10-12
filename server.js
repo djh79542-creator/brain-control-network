@@ -8,6 +8,11 @@ const port = Number(process.argv[2]) || 5200;
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml' };
 
 http.createServer((req, res) => {
+  if (req.url.startsWith('/_probe')) {
+    console.log('[PROBE]', req.socket.remoteAddress, '|', decodeURIComponent(req.url.replace('/_probe?d=', '')), '|', req.headers['user-agent']);
+    res.writeHead(204).end();
+    return;
+  }
   if (req.url === '/' || req.url.startsWith('/assets')) {
     console.log(new Date().toISOString(), req.url, '|', req.headers['user-agent']);
   }

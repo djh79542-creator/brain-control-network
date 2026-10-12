@@ -293,8 +293,11 @@ body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 
 
   .panel {
     position: absolute; top: var(--brainH); bottom: 0; width: auto; margin: 0 8px 8px;
-    min-height: 0; backdrop-filter: blur(10px);
+    min-height: 0; background: rgba(6, 11, 24, .94);
   }
+  /* backdrop-filter re-blurs on every canvas repaint — on a phone that alone
+     costs half the frame rate, so the narrow layout uses opaque fills */
+  .topbar, .dock, .panel { backdrop-filter: none; }
   .panel.right, .panel.left { width: auto; }
   .panel.right { left: 8px; right: 8px; }
   .panel.left {

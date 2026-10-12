@@ -1,5 +1,14 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b4';
+const BUILD = 'b5';
+
+function reportProbe(extra) {
+  const d = Object.assign({
+    build: BUILD, ua: navigator.userAgent, vw: innerWidth, vh: innerHeight, dpr: devicePixelRatio,
+  }, extra);
+  try { fetch('/_probe?d=' + encodeURIComponent(JSON.stringify(d)), { keepalive: true }); } catch (e) { /* offline */ }
+}
+window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error') + '@' + (ev.filename || '?') + ':' + (ev.lineno || 0) }));
+
 (function () {
   const cvs = document.getElementById('c');
   const ctx = cvs.getContext('2d');
@@ -29,6 +38,7 @@ const BUILD = 'b4';
   const dust = [];
   const cloud = [];
   const HOLO = [104, 160, 255];
+  const HOLO_FILL = Array.from({ length: 32 }, (_, i) => 'rgba(' + HOLO[0] + ',' + HOLO[1] + ',' + HOLO[2] + ',' + (i / 31).toFixed(3) + ')');
   const SHELL = { A: 58, B: 52, C: 76, c: [0, 3, -4] };
 
   const S = {
@@ -63,20 +73,21 @@ const BUILD = 'b4';
   let seed = 20261012;
   function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
 
+  const CD = (window.innerWidth < 720 || (window.devicePixelRatio || 1) > 2) ? 0.4 : 1;
   function buildCloud() {
     cloud.length = 0;
     const A = SHELL.A, B = SHELL.B, C = SHELL.C, cx = SHELL.c[0], cy = SHELL.c[1], cz = SHELL.c[2];
-    for (let i = 0; i < 1500; i++) {
+    for (let i = 0; i < 1500 * CD; i++) {
       const u = rnd() * Math.PI * 2, v = Math.acos(2 * rnd() - 1);
       const k = 0.9 + rnd() * 0.1;
       cloud.push([cx + A * Math.sin(v) * Math.cos(u) * k, cy + B * Math.cos(v) * k * 0.92, cz + C * Math.sin(v) * Math.sin(u) * k, 1]);
     }
-    for (let i = 0; i < 420; i++) {
+    for (let i = 0; i < 420 * CD; i++) {
       const u = rnd() * Math.PI * 2, v = Math.acos(2 * rnd() - 1), k = 0.35 + rnd() * 0.5;
       cloud.push([cx + A * Math.sin(v) * Math.cos(u) * k, cy + B * Math.cos(v) * k, cz + C * Math.sin(v) * Math.sin(u) * k, 0.5]);
     }
     dust.length = 0;
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 150 * CD; i++) {
       dust.push([(rnd() - 0.5) * 900, (rnd() - 0.5) * 620, (rnd() - 0.5) * 700, rnd()]);
     }
   }
@@ -432,7 +443,7 @@ const BUILD = 'b4';
       const q = project(cloud[i], ox, oy);
       const d = Math.max(0, Math.min(1, (q.z + 260) / 520));
       const a = (0.07 + d * d * 0.55) * cloud[i][3];
-      ctx.fillStyle = 'rgba(' + HOLO[0] + ',' + HOLO[1] + ',' + HOLO[2] + ',' + a + ')';
+      ctx.fillStyle = HOLO_FILL[Math.min(31, (a * 31) | 0)];
       const s = (0.8 + d * 1.5) * q.s;
       ctx.fillRect(q.x, q.y, s, s);
     }
@@ -829,4 +840,13 @@ const BUILD = 'b4';
   syncPlayBtn();
   requestAnimationFrame(frame);
   setTimeout(() => document.getElementById('boot').classList.add('done'), 1650);
+
+  reportProbe({ ev: 'init', buf: cvs.width + 'x' + cvs.height, css: Math.round(W) + 'x' + Math.round(H) });
+  let pT0 = null, pN = 0;
+  (function countFps(t) {
+    if (pT0 === null) pT0 = t;
+    pN++;
+    if (t - pT0 < 1200) return void requestAnimationFrame(countFps);
+    reportProbe({ ev: 'fps', fps: +(pN / ((t - pT0) / 1000)).toFixed(1), vis: document.visibilityState });
+  })(performance.now());
 })();
