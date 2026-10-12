@@ -1,4 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
+const BUILD = 'b4';
 (function () {
   const cvs = document.getElementById('c');
   const ctx = cvs.getContext('2d');
@@ -133,7 +134,7 @@
 
     document.querySelectorAll('.sc').forEach(b => b.classList.toggle('on', b.dataset.id === id));
     document.getElementById('thesis').textContent = sc.thesis;
-    document.getElementById('scTag').textContent = sc.tag + ' · ' + sc.title;
+    document.getElementById('scTag').textContent = sc.tag + ' · ' + sc.title + ' · ' + BUILD;
     document.getElementById('nodeCount').textContent = REGIONS.length + ' NODES / ' + EDGES.length + ' PATHS';
     renderChips('mainPath', sc.mainPath);
     buildStages();

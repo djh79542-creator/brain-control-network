@@ -31,6 +31,10 @@ body {
   transition: background .9s ease;
 }
 
+/* grid/flex items default to min-content, which lets the dock's chem strip
+   push the whole page wider than a phone viewport */
+body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 0; }
+
 /* ---------- boot ---------- */
 .boot {
   position: fixed; inset: 0; z-index: 99; background: var(--bg);
@@ -215,7 +219,8 @@ body {
   border-top: 1px solid var(--line); background: linear-gradient(0deg, rgba(6, 10, 22, .95), rgba(6, 10, 22, .4));
   backdrop-filter: blur(8px); z-index: 5;
 }
-.chems { display: flex; gap: 20px; flex: 1; }
+.chems { display: flex; gap: 20px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.chems::-webkit-scrollbar { display: none; }
 .chem { min-width: 148px; }
 .chem-h { display: flex; align-items: baseline; gap: 6px; }
 .chem-h b { font-size: 11px; font-weight: 600; }
