@@ -257,3 +257,65 @@ body {
   .chem { min-width: 110px; }
   .scrub-wrap { width: 210px; }
 }
+
+/* ================= mobile / narrow ================= */
+.sheet-toggle { display: none; }
+
+@media (max-width: 860px), (orientation: portrait) and (max-height: 700px) {
+  html, body { height: 100vh; }
+  @supports (height: 100dvh) { html, body { height: 100dvh; } }
+  body {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .topbar { flex-wrap: wrap; gap: 7px; padding: 7px 10px; }
+  .brand { min-width: 0; }
+  .brand-txt b { font-size: 10px; letter-spacing: .16em; }
+  .toolbar { margin-left: auto; gap: 5px; }
+  .tb { height: 27px; min-width: 27px; padding: 0 7px; font-size: 10px; }
+  .tb.primary span { display: none; }
+  .tb.primary { padding: 0 9px; }
+  .scenarios { order: 3; width: 100%; margin-left: 0; overflow-x: auto; scrollbar-width: none; }
+  .scenarios::-webkit-scrollbar { display: none; }
+  .sc { flex: 1 0 auto; min-width: 108px; padding: 6px 10px; }
+  .sc-name { font-size: 13px; }
+
+  .stage { display: block; overflow: hidden; --brainH: clamp(180px, 34vh, 300px); }
+  #c { position: absolute; top: 0; left: 0; right: 0; width: 100%; height: var(--brainH); inset: 0 0 auto 0; touch-action: none; }
+  .frame-deco { top: 0; bottom: auto; height: var(--brainH); }
+  .axis { display: none; }
+
+  .panel {
+    position: absolute; top: var(--brainH); bottom: 0; width: auto; margin: 0 8px 8px;
+    min-height: 0; backdrop-filter: blur(10px);
+  }
+  .panel.right, .panel.left { width: auto; }
+  .panel.right { left: 8px; right: 8px; }
+  .panel.left {
+    left: 8px; right: 8px; top: var(--brainH); z-index: 6; display: none;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, .6);
+  }
+  .panel.left.open { display: flex; }
+  .p-head { padding: 8px 11px; font-size: 11px; }
+  .legend, .stages, .detail { padding: 10px 11px 16px; }
+  .wave { padding: 6px 11px 2px; }
+  .wave svg { height: 46px; }
+  .sc-time { font-size: 8px; }
+  .sc-block p, .hint { font-size: 12px; }
+
+  .sheet-toggle {
+    display: inline-flex; align-items: center; gap: 5px; position: absolute; z-index: 7;
+    top: calc(var(--brainH) - 34px); right: 10px; height: 26px; padding: 0 10px;
+    background: rgba(6, 12, 24, .85); border: 1px solid var(--accent); color: var(--accent);
+    border-radius: 13px; font-size: 11px; cursor: pointer;
+  }
+  .sheet-toggle.on { background: var(--accent); color: #05101a; }
+
+  .dock { flex-wrap: wrap; gap: 8px 14px; padding: 7px 10px 9px; }
+  .chems { width: 100%; overflow-x: auto; gap: 14px; padding-bottom: 2px; scrollbar-width: none; }
+  .chems::-webkit-scrollbar { display: none; }
+  .chem { min-width: 132px; flex: none; }
+  .scrub-wrap { width: 100%; }
+  .tip { display: none; }
+}

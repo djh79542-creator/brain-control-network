@@ -354,12 +354,14 @@
       '<div class="d-sec"><h5>TOP LINKS 主要通路</h5><ul class="linklist">' + links + '</ul></div>';
     box.querySelector('.d-close').addEventListener('click', closeDetail);
     if (!keep) box.scrollTop = 0;
+    if (isMobile()) setSheet(true);
   }
   function closeDetail() {
     S.selected = null;
     document.getElementById('detail').classList.add('hidden');
     document.getElementById('detail').innerHTML = '';
     document.getElementById('legend').classList.remove('hidden');
+    if (isMobile()) setSheet(false);
   }
 
   /* ---------- render loop ---------- */
@@ -613,8 +615,9 @@
 
   function drawLabels(order) {
     const st = S.sc.stages[S.stage];
+    const maxLabels = W < 700 ? 6 : 15;
     const cands = order.filter(n => n.act > 0.5 || n === S.selected || n === S.hover || st.focus.indexOf(n.r.id) >= 0)
-      .sort((a, b) => (b.sz - a.sz) || (b.act - a.act)).slice(0, 15);
+      .sort((a, b) => (b.sz - a.sz) || (b.act - a.act)).slice(0, maxLabels);
     const placed = [];
     cands.forEach(n => {
       const strong = n === S.selected || n === S.hover || st.focus.indexOf(n.r.id) >= 0;
@@ -685,7 +688,10 @@
 
   /* ---------- interaction ---------- */
   const drag = { on: false, x: 0, y: 0, moved: 0 };
+  const tips = new Map();
+  let pinchDist = 0;
   const tip = document.getElementById('tip');
+  const isMobile = () => window.matchMedia('(max-width: 860px)').matches;
 
   function pick(mx, my) {
     let best = null, bd = 1e9;
@@ -698,10 +704,20 @@
   }
 
   cvs.addEventListener('pointerdown', ev => {
+    tips.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (tips.size === 2) { drag.on = false; pinchDist = pinchSpan(); return; }
     drag.on = true; drag.x = ev.clientX; drag.y = ev.clientY; drag.moved = 0;
     cvs.classList.add('grab'); cvs.setPointerCapture(ev.pointerId);
   });
   cvs.addEventListener('pointermove', ev => {
+    if (tips.has(ev.pointerId)) tips.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (tips.size === 2) {
+      const s = pinchSpan();
+      if (pinchDist) cam.zoom = Math.max(0.5, Math.min(2.4, cam.zoom * (s / pinchDist)));
+      pinchDist = s;
+      tip.classList.remove('on');
+      return;
+    }
     const rect = cvs.getBoundingClientRect();
     const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
     if (drag.on) {
@@ -711,6 +727,7 @@
       tip.classList.remove('on');
       return;
     }
+    if (ev.pointerType === 'touch') return;
     const n = pick(mx, my);
     S.hover = n;
     cvs.style.cursor = n ? 'pointer' : 'default';
@@ -721,15 +738,26 @@
       tip.classList.add('on');
     } else tip.classList.remove('on');
   });
-  cvs.addEventListener('pointerup', ev => {
+  function endPointer(ev) {
+    const wasPinch = tips.size === 2;
+    tips.delete(ev.pointerId);
+    if (tips.size < 2) pinchDist = 0;
+    if (wasPinch) return;
     const rect = cvs.getBoundingClientRect();
+    const moved = drag.on ? drag.moved : 99;
     drag.on = false; cvs.classList.remove('grab');
-    if (drag.moved < 5) {
+    if (moved < 8) {
       const n = pick(ev.clientX - rect.left, ev.clientY - rect.top);
-      if (n) openDetail(n); else closeDetail();
+      if (n) openDetail(n); else if (!isMobile()) closeDetail();
     }
-  });
-  cvs.addEventListener('pointerleave', () => { S.hover = null; tip.classList.remove('on'); });
+  }
+  function pinchSpan() {
+    const [a, b] = [...tips.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  cvs.addEventListener('pointerup', endPointer);
+  cvs.addEventListener('pointercancel', endPointer);
+  cvs.addEventListener('pointerleave', ev => { tips.delete(ev.pointerId); S.hover = null; tip.classList.remove('on'); });
   cvs.addEventListener('wheel', ev => {
     ev.preventDefault();
     cam.zoom = Math.max(0.5, Math.min(2.4, cam.zoom * (1 - ev.deltaY * 0.0011)));
@@ -738,6 +766,17 @@
   document.getElementById('scenarios').addEventListener('click', ev => {
     const b = ev.target.closest('.sc'); if (b) applyScenario(b.dataset.id);
   });
+
+  /* mobile: 回路档案 sheet */
+  const sheetBtn = document.getElementById('sheetToggle');
+  const leftPanel = document.querySelector('.panel.left');
+  function setSheet(open) {
+    leftPanel.classList.toggle('open', open);
+    sheetBtn.classList.toggle('on', open);
+    sheetBtn.textContent = open ? '× 收起' : '◈ 档案';
+    if (open) leftPanel.querySelector('.legend, .detail').scrollTop = 0;
+  }
+  sheetBtn.addEventListener('click', () => setSheet(!leftPanel.classList.contains('open')));
 
   const btnPlay = document.getElementById('btnPlay');
   function syncPlayBtn() {
@@ -782,6 +821,9 @@
   }, 380);
 
   resize();
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    document.getElementById('hint').textContent = '单指拖动旋转 · 双指缩放 · 点击核团查看通路 · 下方卡片切换阶段';
+  }
   applyScenario('dependence', true);
   syncPlayBtn();
   requestAnimationFrame(frame);

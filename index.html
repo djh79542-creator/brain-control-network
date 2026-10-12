@@ -70,6 +70,8 @@
 <main class="stage">
   <canvas id="c"></canvas>
 
+  <button id="sheetToggle" class="sheet-toggle" title="回路档案">◈ 档案</button>
+
   <div class="frame-deco" aria-hidden="true">
     <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
     <div class="axis">R&nbsp;·&nbsp;ANTERIOR VIEW · 示意性模型，非解剖精度</div>
@@ -81,7 +83,7 @@
       <em id="nodeCount">24 NODES</em>
     </div>
     <div id="legend" class="legend">
-      <p class="hint">拖拽旋转 · 滚轮缩放 · 悬停查看核团 · 点击锁定并高亮其通路</p>
+      <p class="hint" id="hint">拖拽旋转 · 滚轮缩放 · 悬停查看核团 · 点击锁定并高亮其通路</p>
       <ul class="lg">
         <li><i class="dot size"></i><span>节点大小 = 该场景参与度</span></li>
         <li><i class="dot bright"></i><span>亮度 = 激活/放电强度</span></li>
