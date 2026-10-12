@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEURAL LINK · 大脑链路可视化</title>
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<div id="boot" class="boot">
+  <div class="boot-inner">
+    <div class="boot-logo">BRAIN&nbsp;CONTROL&nbsp;NETWORK</div>
+    <div class="boot-bar"><i></i></div>
+    <div class="boot-log" id="bootLog">linking cortical map…</div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"><span></span></div>
+    <div class="brand-txt">
+      <b>NEURAL LINK</b>
+      <em id="thesis">大脑链路可视化 · 三种场景下的回路调用</em>
+    </div>
+  </div>
+
+  <nav class="scenarios" id="scenarios" aria-label="场景切换">
+    <button class="sc" data-id="dependence">
+      <span class="sc-idx">01</span>
+      <span class="sc-name">建立依赖</span>
+      <span class="sc-sub">Reward Hijack</span>
+    </button>
+    <button class="sc" data-id="habit">
+      <span class="sc-idx">02</span>
+      <span class="sc-name">产生习惯</span>
+      <span class="sc-sub">Cortex→Striatum Shift</span>
+    </button>
+    <button class="sc" data-id="heartbreak">
+      <span class="sc-idx">03</span>
+      <span class="sc-name">失恋时刻</span>
+      <span class="sc-sub">Attachment Withdrawal</span>
+    </button>
+  </nav>
+
+  <div class="toolbar">
+    <button id="btnPlay" class="tb primary" title="播放/暂停阶段推进 (空格)">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3l9 5-9 5z"/></svg>
+      <span>自动推演</span>
+    </button>
+    <button id="btnPrev" class="tb" title="上一阶段 (←)">
+      <svg viewBox="0 0 16 16"><path d="M11 3L5 8l6 5z"/></svg>
+    </button>
+    <button id="btnNext" class="tb" title="下一阶段 (→)">
+      <svg viewBox="0 0 16 16"><path d="M5 3l6 5-6 5z"/></svg>
+    </button>
+    <button id="btnRotate" class="tb toggle on" title="自动旋转">
+      <svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 100 12 6 6 0 000-12zM8 4.5v7M4.5 8h7"/></svg>
+    </button>
+    <button id="btnLabels" class="tb toggle on" title="显示标签">
+      <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+    </button>
+    <select id="speed" class="tb sel" title="推演速度">
+      <option value="0.7">0.7×</option>
+      <option value="1" selected>1×</option>
+      <option value="1.6">1.6×</option>
+    </select>
+  </div>
+</header>
+
+<main class="stage">
+  <canvas id="c"></canvas>
+
+  <div class="frame-deco" aria-hidden="true">
+    <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+    <div class="axis">R&nbsp;·&nbsp;ANTERIOR VIEW · 示意性模型，非解剖精度</div>
+  </div>
+
+  <section class="panel left">
+    <div class="p-head">
+      <span>回路档案</span>
+      <em id="nodeCount">24 NODES</em>
+    </div>
+    <div id="legend" class="legend">
+      <p class="hint">拖拽旋转 · 滚轮缩放 · 悬停查看核团 · 点击锁定并高亮其通路</p>
+      <ul class="lg">
+        <li><i class="dot size"></i><span>节点大小 = 该场景参与度</span></li>
+        <li><i class="dot bright"></i><span>亮度 = 激活/放电强度</span></li>
+        <li><i class="dot line"></i><span>流光方向 = 信号传导方向</span></li>
+      </ul>
+      <div class="path-card">
+        <div class="pc-title">当前主通路</div>
+        <div id="mainPath" class="pc-body"></div>
+      </div>
+      <div class="path-card rank-card">
+        <div class="pc-title">本场景活跃度排行 <span class="live">LIVE</span></div>
+        <div id="rank" class="rank"></div>
+      </div>
+      <div class="note">
+        <b>阅读提示</b>
+        本页为 fMRI / 电生理结论的<b>示意化表达</b>：脑成像显示的是相关而非因果，
+        个体差异、剂量与时间尺度都会改变回路表现。数字与阶段时长为典型区间，不是诊断标准。
+      </div>
+    </div>
+    <div id="detail" class="detail hidden"></div>
+  </section>
+
+  <section class="panel right">
+    <div class="p-head">
+      <span>调用时序 &amp; 体验说明</span>
+      <em id="scTag">SC-01</em>
+    </div>
+    <div class="wave">
+      <svg id="wave" viewBox="0 0 320 78" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="wfill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".35"/>
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="waveArea" fill="url(#wfill)" d=""></path>
+        <path id="waveLine" class="wl" d=""></path>
+        <circle id="waveDot" r="3.6" cx="0" cy="0"></circle>
+      </svg>
+      <div class="wave-ax"><span>强度</span><span>时间 →</span></div>
+    </div>
+    <div id="stages" class="stages"></div>
+  </section>
+</main>
+
+<footer class="dock">
+  <div class="chems" id="chems"></div>
+  <div class="scrub-wrap">
+    <div class="scrub-label"><span id="scrubName">阶段</span><em id="scrubTime"></em></div>
+    <div class="scrub" id="scrub"></div>
+  </div>
+</footer>
+
+<div id="tip" class="tip"></div>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
