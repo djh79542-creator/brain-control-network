@@ -1,5 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b5';
+const BUILD = 'b6';
 
 function reportProbe(extra) {
   const d = Object.assign({
@@ -128,6 +128,41 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   }
   const _p = [0, 0, 0];
 
+  /* ---------- scenario picker ---------- */
+  const SC_KEYS = Object.keys(SCENARIOS);
+
+  function buildScenarioPicker() {
+    const nav = document.getElementById('scenarios');
+    SC_KEYS.forEach(id => {
+      const sc = SCENARIOS[id];
+      const b = document.createElement('button');
+      b.className = 'sc'; b.dataset.id = id; b.setAttribute('role', 'tab');
+      b.innerHTML = '<span class="sc-idx">' + sc.tag.slice(-2) + '</span>' +
+        '<span class="sc-name">' + sc.title.split('：')[0] + '</span>' +
+        '<span class="sc-sub">' + sc.sub + '</span>';
+      nav.appendChild(b);
+    });
+
+    const byGroup = new Map();
+    SC_KEYS.forEach(id => {
+      const g = SCENARIOS[id].group || '其他';
+      if (!byGroup.has(g)) byGroup.set(g, []);
+      byGroup.get(g).push(id);
+    });
+    const all = document.getElementById('scAll');
+    byGroup.forEach((list, g) => {
+      const og = document.createElement('optgroup');
+      og.label = g + ' · ' + list.length;
+      list.forEach(id => {
+        const o = document.createElement('option');
+        o.value = id;
+        o.textContent = SCENARIOS[id].tag + ' ' + SCENARIOS[id].title;
+        og.appendChild(o);
+      });
+      all.appendChild(og);
+    });
+  }
+
   /* ---------- scenario application ---------- */
   function applyScenario(id, first) {
     const sc = SCENARIOS[id];
@@ -144,6 +179,9 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     });
 
     document.querySelectorAll('.sc').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+    const on = document.querySelector('.sc.on');
+    if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    document.getElementById('scAll').value = id;
     document.getElementById('thesis').textContent = sc.thesis;
     document.getElementById('scTag').textContent = sc.tag + ' · ' + sc.title + ' · ' + BUILD;
     document.getElementById('nodeCount').textContent = REGIONS.length + ' NODES / ' + EDGES.length + ' PATHS';
@@ -778,6 +816,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   document.getElementById('scenarios').addEventListener('click', ev => {
     const b = ev.target.closest('.sc'); if (b) applyScenario(b.dataset.id);
   });
+  document.getElementById('scAll').addEventListener('change', ev => applyScenario(ev.target.value));
 
   /* mobile: 回路档案 sheet */
   const sheetBtn = document.getElementById('sheetToggle');
@@ -809,7 +848,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     if (ev.key === ' ') { ev.preventDefault(); S.playing = !S.playing; syncPlayBtn(); }
     else if (ev.key === 'ArrowRight') { setStage(S.stage + 1, true); S.playing = false; syncPlayBtn(); }
     else if (ev.key === 'ArrowLeft') { setStage(S.stage - 1, true); S.playing = false; syncPlayBtn(); }
-    else if (ev.key === '1' || ev.key === '2' || ev.key === '3') applyScenario(['dependence', 'habit', 'heartbreak'][+ev.key - 1]);
+    else if (/^[1-9]$/.test(ev.key)) applyScenario(SC_KEYS[+ev.key - 1]);
     else if (ev.key === 'Escape') closeDetail();
   });
 
@@ -824,7 +863,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   window.addEventListener('resize', resize);
 
   /* ---------- boot ---------- */
-  const logs = ['linking cortical map…', 'calibrating 26 nuclei…', 'loading scenario matrix…', 'neural link established'];
+  const logs = ['linking cortical map…', 'calibrating ' + REGIONS.length + ' nuclei…', 'loading scenario matrix…', 'neural link established'];
   let li = 0;
   const logTimer = setInterval(() => {
     li++; const el = document.getElementById('bootLog');
@@ -836,6 +875,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   if (window.matchMedia('(pointer: coarse)').matches) {
     document.getElementById('hint').textContent = '单指拖动旋转 · 双指缩放 · 点击核团查看通路 · 下方卡片切换阶段';
   }
+  buildScenarioPicker();
   applyScenario('dependence', true);
   syncPlayBtn();
   requestAnimationFrame(frame);

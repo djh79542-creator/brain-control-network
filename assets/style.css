@@ -64,9 +64,13 @@ body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 
 .brand-txt b { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; }
 .brand-txt em { font-style: normal; font-size: 11px; color: var(--ink-faint); max-width: 260px; }
 
-.scenarios { display: flex; gap: 8px; margin-left: auto; }
+.scenarios {
+  display: flex; gap: 8px; margin-left: auto; min-width: 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.scenarios::-webkit-scrollbar { display: none; }
 .sc {
-  position: relative; cursor: pointer; text-align: left;
+  position: relative; cursor: pointer; text-align: left; flex: none;
   background: rgba(12, 20, 38, .6); border: 1px solid var(--line); color: var(--ink-dim);
   padding: 7px 14px 7px 12px; border-radius: 3px; display: grid; gap: 1px;
   transition: .28s ease; font-family: var(--sans); overflow: hidden;

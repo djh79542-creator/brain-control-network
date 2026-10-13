@@ -20,27 +20,11 @@
     <div class="brand-mark"><span></span></div>
     <div class="brand-txt">
       <b>NEURAL LINK</b>
-      <em id="thesis">大脑链路可视化 · 三种场景下的回路调用</em>
+      <em id="thesis">大脑链路可视化 · 17 个场景下的回路调用与体验</em>
     </div>
   </div>
 
-  <nav class="scenarios" id="scenarios" aria-label="场景切换">
-    <button class="sc" data-id="dependence">
-      <span class="sc-idx">01</span>
-      <span class="sc-name">建立依赖</span>
-      <span class="sc-sub">Reward Hijack</span>
-    </button>
-    <button class="sc" data-id="habit">
-      <span class="sc-idx">02</span>
-      <span class="sc-name">产生习惯</span>
-      <span class="sc-sub">Cortex→Striatum Shift</span>
-    </button>
-    <button class="sc" data-id="heartbreak">
-      <span class="sc-idx">03</span>
-      <span class="sc-name">失恋时刻</span>
-      <span class="sc-sub">Attachment Withdrawal</span>
-    </button>
-  </nav>
+  <nav class="scenarios" id="scenarios" aria-label="场景切换"></nav>
 
   <div class="toolbar">
     <button id="btnPlay" class="tb primary" title="播放/暂停阶段推进 (空格)">
@@ -59,6 +43,7 @@
     <button id="btnLabels" class="tb toggle on" title="显示标签">
       <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
     </button>
+    <select id="scAll" class="tb sel" title="按轴分组跳转场景" aria-label="全部场景"></select>
     <select id="speed" class="tb sel" title="推演速度">
       <option value="0.7">0.7×</option>
       <option value="1" selected>1×</option>
