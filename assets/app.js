@@ -1,5 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b8';
+const BUILD = 'b9';
 
 function reportProbe(extra) {
   const d = Object.assign({
@@ -415,13 +415,20 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   }
 
   /* ---------- render loop ---------- */
-  let last = performance.now(), T = 0, sweep = 0, rankTick = 0;
+  let last = performance.now(), T = 0, sweep = 0, rankTick = 0, loopErr = null;
 
   function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
-    step(dt);
-    draw();
     requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
+    try {
+      step(dt);
+      draw();
+    } catch (err) {
+      if (!loopErr) {
+        loopErr = err;
+        reportProbe({ ev: 'looperr', msg: String((err && err.message) || err) });
+      }
+    }
   }
 
   function step(dt) {
