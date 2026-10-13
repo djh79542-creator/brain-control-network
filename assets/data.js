@@ -81,7 +81,7 @@ const CHEM_META = [
 const SCENARIOS = {
   dependence: {
     tag: 'SC-01',
-    title: '建立依赖',
+    title: '建立依赖：奖赏回路被劫持',
     sub: 'Reward Hijack',
     group: '奖赏与动机',
     accent: '#ffb340', accent2: '#ff4d2e',
@@ -445,7 +445,7 @@ const SCENARIOS = {
 
   habit: {
     tag: 'SC-06',
-    title: '产生习惯',
+    title: '产生习惯：控制交给纹状体',
     sub: 'Cortex→Striatum Shift',
     group: '习惯与控制',
     accent: '#3ef2c0', accent2: '#2b9dff',
@@ -719,7 +719,7 @@ const SCENARIOS = {
 
   heartbreak: {
     tag: 'SC-10',
-    title: '失恋时刻',
+    title: '失恋时刻：依恋的戒断反应',
     sub: 'Attachment Withdrawal',
     group: '社会与联结',
     accent: '#ff5f9e', accent2: '#8a5bff',
@@ -1194,7 +1194,7 @@ const SCENARIOS = {
 
   sleepless: {
     tag: 'SC-17',
-    title: '睡眠剥夺后情绪失控',
+    title: '睡眠剥夺：刹车线先断',
     sub: 'Untuned Brakes',
     group: '应激与唤醒',
     accent: '#6b7dff', accent2: '#3ad2ff',

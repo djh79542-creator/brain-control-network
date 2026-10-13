@@ -1,5 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b7';
+const BUILD = 'b8';
 
 function reportProbe(extra) {
   const d = Object.assign({
