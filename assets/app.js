@@ -1,5 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b9';
+const BUILD = 'b10';
 
 function reportProbe(extra) {
   const d = Object.assign({
@@ -883,6 +883,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     document.getElementById('hint').textContent = '单指拖动旋转 · 双指缩放 · 点击核团查看通路 · 下方卡片切换阶段';
   }
   buildScenarioPicker();
+  document.getElementById('whatCount').textContent = REGIONS.length + ' 核团 · ' + EDGES.length + ' 通路';
   applyScenario('dependence', true);
   syncPlayBtn();
   requestAnimationFrame(frame);

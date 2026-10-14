@@ -112,6 +112,32 @@ body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 
 .c.br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
 .axis { position: absolute; bottom: -8px; right: 20px; font-family: var(--mono); font-size: 9px; color: var(--ink-faint); letter-spacing: .16em; }
 
+/* the hologram alone doesn't tell a first-time viewer it's a brain — the panels
+   that explain it are collapsed on phones, so the caption sits on the canvas */
+.what {
+  position: absolute; z-index: 3; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px 16px;
+  max-width: min(600px, calc(100% - 720px)); padding: 9px 18px 10px;
+  background: rgba(5, 9, 20, .8); border: 1px solid var(--line); border-top: 2px solid var(--accent);
+  border-radius: 3px; text-align: center; pointer-events: none;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .5);
+}
+/* a leader line so the title reads as pointing at the thing below it */
+.what::after {
+  content: ""; position: absolute; left: 50%; bottom: -22px; width: 1px; height: 22px;
+  background: linear-gradient(var(--accent), transparent);
+}
+.what-k { width: 100%; font-family: var(--mono); font-size: 9px; letter-spacing: .24em; color: var(--accent); }
+.what-t { width: 100%; font-size: 19px; font-weight: 600; letter-spacing: .05em; color: #fff; text-shadow: 0 0 20px var(--accent); }
+.what-i { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-dim); white-space: nowrap; }
+.what-n { width: 100%; font-style: normal; font-family: var(--mono); font-size: 9px; color: var(--ink-faint); letter-spacing: .14em; }
+.what-p { position: relative; flex: none; width: 18px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--accent)); }
+.what-p::after {
+  content: ""; position: absolute; top: -2px; left: 0; width: 6px; height: 6px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 8px var(--accent); animation: signal-run 1.9s linear infinite;
+}
+@keyframes signal-run { 0% { left: -3px; opacity: 0; } 18% { opacity: 1; } 82% { opacity: 1; } 100% { left: 15px; opacity: 0; } }
+
 /* ---------- panels ---------- */
 .panel {
   position: absolute; top: 14px; bottom: 14px; width: 306px; z-index: 4;
@@ -294,6 +320,13 @@ body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 
   #c { position: absolute; top: 0; left: 0; right: 0; width: 100%; height: var(--brainH); inset: 0 0 auto 0; touch-action: none; }
   .frame-deco { top: 0; bottom: auto; height: var(--brainH); }
   .axis { display: none; }
+  .what {
+    top: 6px; left: 6px; right: 6px; transform: none; max-width: none; text-align: left;
+    justify-content: flex-start; gap: 3px 10px; padding: 6px 10px 7px;
+  }
+  .what::after, .what-k, .what-n { display: none; }
+  .what-t { font-size: 15px; }
+  .what-i { font-size: 10px; }
 
   .panel {
     position: absolute; top: var(--brainH); bottom: 0; width: auto; margin: 0 8px 8px;
