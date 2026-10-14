@@ -1,5 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b11';
+const BUILD = 'b12';
 
 function reportProbe(extra) {
   const d = Object.assign({
@@ -239,6 +239,34 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
       box.appendChild(card);
       renderChips(box.querySelector('[data-chain="' + i + '"]'), st.focus.map(k => RMAP.get(k).name));
     });
+    buildFixes(box);
+  }
+
+  /* ---------- intervention plan ---------- */
+  function buildFixes(box) {
+    const fx = FIXES[S.id];
+    if (!fx) return;
+    const card = document.createElement('div');
+    card.className = 'fx-card';
+    card.innerHTML =
+      '<div class="fx-h"><span class="fx-t">干预与解法</span><span class="fx-en">INTERVENTION</span></div>' +
+      '<p class="fx-goal">' + fx.goal + '</p>' +
+      fx.items.map((it, i) => {
+        const lvNote = FIX_LEGEND.split(' · ').find(s => s.charAt(0) === it.lv) || it.lv;
+        return '<div class="fx-item" data-node="' + it.node + '">' +
+          '<div class="fx-r1"><span class="fx-no">' + String(i + 1).padStart(2, '0') + '</span>' +
+          '<span class="fx-lv lv-' + it.lv + '" title="' + lvNote + '">' + it.lv + '</span>' +
+          '<b class="fx-act">' + it.act + '</b></div>' +
+          '<p class="fx-why">' + it.why + '</p>' +
+          '<em class="fx-node">' + RMAP.get(it.node).name + ' · ' + RMAP.get(it.node).en + ' ▸</em>' +
+          '</div>';
+      }).join('') +
+      '<p class="fx-legend">' + FIX_LEGEND + '</p>';
+    card.querySelectorAll('.fx-item').forEach(el => {
+      const n = nodes.find(x => x.r.id === el.dataset.node);
+      if (n) el.addEventListener('click', () => openDetail(n));
+    });
+    box.appendChild(card);
   }
 
   function renderChips(el, items) {
