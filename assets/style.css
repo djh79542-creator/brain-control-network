@@ -247,9 +247,15 @@ body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 
   border: 1px solid var(--line); border-left: 2px solid var(--accent); border-radius: 3px;
   padding: 10px 11px 9px; margin: 15px 0 8px; background: rgba(10, 20, 34, .55);
 }
-.fx-h { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; }
+.fx-h { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; cursor: pointer; }
+.fx-card:not(.open) .fx-h { margin-bottom: 0; }
+.fx-card:hover { border-color: rgba(140, 190, 255, .4); }
+.fx-caret { flex: none; width: 9px; font-family: var(--mono); font-size: 10px; color: var(--accent); transition: transform .25s ease; }
+.fx-card.open .fx-caret { transform: rotate(90deg); }
 .fx-t { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: .04em; flex: 1; }
 .fx-en { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: .14em; }
+.fx-body { display: none; }
+.fx-card.open .fx-body { display: block; animation: fadein .45s ease; }
 .fx-goal { margin: 0 0 4px; font-size: 12px; line-height: 1.8; color: var(--ink); }
 .fx-item { border-top: 1px solid var(--line); padding: 8px 0 9px; cursor: pointer; transition: .2s ease; }
 .fx-item:hover { background: rgba(62, 242, 192, .05); }
