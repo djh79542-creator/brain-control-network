@@ -1,5 +1,5 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b12';
+const BUILD = 'b13';
 
 function reportProbe(extra) {
   const d = Object.assign({
@@ -20,7 +20,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   let W = 0, H = 0, DPR = 1;
 
   /* ---------- scene state ---------- */
-  const cam = { yaw: -0.55, pitch: 0.36, dist: 560, zoom: 1, pan: [0, 0, 0], panT: [0, 0, 0] };
+  const cam = { yaw: -0.55, pitch: 0.36, dist: 560, zoom: 1, zoomT: 1, pan: [0, 0, 0], panT: [0, 0, 0] };
 
   const nodes = REGIONS.map(r => ({
     r, act: 0.06, actT: 0.06, pulse: 0, flash: 0,
@@ -52,6 +52,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     labels: true,
     hover: null,
     selected: null,
+    focus: null,
     chem: { DA: 0, '5HT': 0, OT: 0, COR: 0 },
     chemT: { DA: 0, '5HT': 0, OT: 0, COR: 0 },
     accent: hex2rgb(SCENARIOS.dependence.accent),
@@ -258,13 +259,13 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
           '<span class="fx-lv lv-' + it.lv + '" title="' + lvNote + '">' + it.lv + '</span>' +
           '<b class="fx-act">' + it.act + '</b></div>' +
           '<p class="fx-why">' + it.why + '</p>' +
-          '<em class="fx-node">' + RMAP.get(it.node).name + ' · ' + RMAP.get(it.node).en + ' ▸</em>' +
+          '<em class="fx-node">' + RMAP.get(it.node).name + ' · ' + RMAP.get(it.node).en + ' ▸ 缩放定位</em>' +
           '</div>';
       }).join('') +
       '<p class="fx-legend">' + FIX_LEGEND + '</p>';
     card.querySelectorAll('.fx-item').forEach(el => {
-      const n = nodes.find(x => x.r.id === el.dataset.node);
-      if (n) el.addEventListener('click', () => openDetail(n));
+      const n = nById.get(el.dataset.node);
+      if (n) el.addEventListener('click', () => focusNode(n));
     });
     box.appendChild(card);
   }
@@ -295,6 +296,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     const cx = st.focus.reduce((s, k) => s + RMAP.get(k).pos[0], 0) / st.focus.length;
     const cy = st.focus.reduce((s, k) => s + RMAP.get(k).pos[1], 0) / st.focus.length;
     const cz = st.focus.reduce((s, k) => s + RMAP.get(k).pos[2], 0) / st.focus.length;
+    unfocus();
     cam.panT = [cx * 0.5, cy * 0.5, cz * 0.5];
 
     const ch = st.chem || S.sc.chem;
@@ -402,6 +404,25 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     document.getElementById('scrubTime').textContent = st.time;
   }
 
+  /* ---------- camera focus ---------- */
+  function nudgeZoom(z) {
+    cam.zoom = cam.zoomT = Math.max(0.5, Math.min(2.4, z));
+    S.focus = null;
+  }
+  function focusNode(n) {
+    S.focus = n.r.id;
+    S.playing = false;
+    syncPlayBtn();
+    cam.panT = n.r.pos.slice();
+    cam.zoomT = 1.95;
+    openDetail(n);
+  }
+  function unfocus() {
+    if (!S.focus) return;
+    S.focus = null;
+    cam.zoomT = 1;
+  }
+
   /* ---------- node detail ---------- */
   function openDetail(n, keep) {
     S.selected = n;
@@ -436,6 +457,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   }
   function closeDetail() {
     S.selected = null;
+    unfocus();
     document.getElementById('detail').classList.add('hidden');
     document.getElementById('detail').innerHTML = '';
     document.getElementById('legend').classList.remove('hidden');
@@ -471,6 +493,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     rankTick += dt;
     if (rankTick > 0.25) { rankTick = 0; updateRank(); }
     for (let i = 0; i < 3; i++) cam.pan[i] = lerp(cam.pan[i], cam.panT[i], 1 - Math.pow(0.05, dt));
+    cam.zoom = lerp(cam.zoom, cam.zoomT, 1 - Math.pow(0.02, dt));
     if (S.autoRotate && !drag.on) cam.yaw += dt * 0.075;
 
     /* stage clock */
@@ -798,7 +821,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     if (tips.has(ev.pointerId)) tips.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
     if (tips.size === 2) {
       const s = pinchSpan();
-      if (pinchDist) cam.zoom = Math.max(0.5, Math.min(2.4, cam.zoom * (s / pinchDist)));
+      if (pinchDist) nudgeZoom(cam.zoom * (s / pinchDist));
       pinchDist = s;
       tip.classList.remove('on');
       return;
@@ -845,7 +868,7 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   cvs.addEventListener('pointerleave', ev => { tips.delete(ev.pointerId); S.hover = null; tip.classList.remove('on'); });
   cvs.addEventListener('wheel', ev => {
     ev.preventDefault();
-    cam.zoom = Math.max(0.5, Math.min(2.4, cam.zoom * (1 - ev.deltaY * 0.0011)));
+    nudgeZoom(cam.zoom * (1 - ev.deltaY * 0.0011));
   }, { passive: false });
 
   document.getElementById('scenarios').addEventListener('click', ev => {
