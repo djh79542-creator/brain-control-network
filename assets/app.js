@@ -1,7 +1,8 @@
 /* ============ NEURAL LINK · brain circuit visualizer ============ */
-const BUILD = 'b14';
+const BUILD = 'b15';
 
 function reportProbe(extra) {
+  if (/[?&]press=/.test(location.search)) return;
   const d = Object.assign({
     build: BUILD, ua: navigator.userAgent, vw: innerWidth, vh: innerHeight, dpr: devicePixelRatio,
   }, extra);
@@ -167,6 +168,11 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   function applyScenario(id, first) {
     const sc = SCENARIOS[id];
     S.id = id; S.sc = sc;
+    const q = new URLSearchParams(location.search);
+    if (q.get('sc') !== id) {
+      q.set('sc', id);
+      try { history.replaceState(null, '', '?' + q); } catch (e) { /* file:// */ }
+    }
     S.accentT = hex2rgb(sc.accent); S.accent2T = hex2rgb(sc.accent2);
     document.documentElement.style.setProperty('--accent', sc.accent);
     document.documentElement.style.setProperty('--accent2', sc.accent2);
@@ -183,7 +189,8 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
     if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     document.getElementById('scAll').value = id;
     document.getElementById('thesis').textContent = sc.thesis;
-    document.getElementById('scTag').textContent = sc.tag + ' · ' + sc.title + ' · ' + BUILD;
+    document.getElementById('scTag').textContent = sc.tag + ' · ' + sc.title +
+      (/[?&]press=1/.test(location.search) ? '' : ' · ' + BUILD);
     document.getElementById('nodeCount').textContent = REGIONS.length + ' NODES / ' + EDGES.length + ' PATHS';
     renderChips('mainPath', sc.mainPath);
     buildStages();
@@ -916,10 +923,21 @@ window.addEventListener('error', ev => reportProbe({ err: (ev.message || 'error'
   }
   buildScenarioPicker();
   document.getElementById('whatCount').textContent = REGIONS.length + ' 个核团 · ' + EDGES.length + ' 条神经投射';
-  applyScenario('dependence', true);
+  const q = new URLSearchParams(location.search);
+  const z0 = parseFloat(q.get('z'));
+  if (z0 >= 0.5 && z0 <= 2.4) cam.zoom = z0;
+  const startSc = q.get('sc');
+  applyScenario(SCENARIOS[startSc] ? startSc : 'dependence', true);
+  const startStage = parseInt(q.get('stage'), 10);
+  if (startStage >= 1 && startStage <= S.sc.stages.length) {
+    S.playing = false;
+    syncPlayBtn();
+    setStage(startStage - 1, true);
+  }
   syncPlayBtn();
   requestAnimationFrame(frame);
-  setTimeout(() => document.getElementById('boot').classList.add('done'), 1650);
+  const bootEl = document.getElementById('boot');
+  setTimeout(() => bootEl && bootEl.classList.add('done'), 1650);
 
   reportProbe({ ev: 'init', buf: cvs.width + 'x' + cvs.height, css: Math.round(W) + 'x' + Math.round(H) });
   let pT0 = null, pN = 0;

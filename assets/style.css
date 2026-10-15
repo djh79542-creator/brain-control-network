@@ -277,6 +277,28 @@ body > .topbar, body > .stage, body > .dock, .dock > *, .chems > * { min-width: 
   font-family: var(--mono); font-size: 9px; line-height: 1.7; color: var(--ink-faint);
 }
 
+/* ---------- press mode ---------- */
+body.shot { grid-template-rows: 1fr; }
+body.shot > .topbar, body.shot > .dock, body.shot .panel, body.shot .sheet-toggle { display: none; }
+body.shot .what { display: none; }
+.shot-cap {
+  position: absolute; z-index: 3; top: 3vmin; left: 3.6vmin;
+  font-family: var(--mono); font-size: 2.7vmin; letter-spacing: .1em;
+  color: var(--ink); text-shadow: 0 0 16px rgba(0, 0, 0, .9); pointer-events: none;
+}
+.shot-cap em { display: block; margin-top: .8vmin; font-size: 2vmin; font-style: normal; color: var(--ink-faint); letter-spacing: .18em; }
+.shot-mark {
+  position: absolute; z-index: 3; bottom: 3vmin; left: 3.6vmin;
+  font-family: var(--mono); font-size: 1.9vmin; letter-spacing: .14em;
+  color: var(--ink-faint); text-shadow: 0 0 12px rgba(0, 0, 0, .9); pointer-events: none;
+}
+.press-foot { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.press-foot p { margin: 0 0 7px; font-size: 10.5px; line-height: 1.75; color: var(--ink-faint); }
+.press-foot b {
+  display: inline-block; margin-right: 6px; font-family: var(--mono);
+  font-size: 9px; letter-spacing: .12em; font-weight: 500; color: var(--accent);
+}
+
 /* ---------- dock ---------- */
 .dock {
   display: flex; align-items: center; gap: 24px; padding: 6px 18px 12px;
